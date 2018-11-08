@@ -2,6 +2,8 @@ defmodule Discuss.TopicController do
   use Discuss.Web, :controller
   alias Discuss.Topic
 
+  plug Discuss.Plugs.RequireAuth when action not in [:index, :show]
+
   def index(conn, _params) do
     topics = Repo.all(Topic)
     render conn, "index.html", topics: topics
@@ -57,5 +59,8 @@ defmodule Discuss.TopicController do
     conn
     |> put_flash(:info, "Topic Deleted")
     |> redirect(to: topic_path(conn, :index))
+  end
+
+  def show(_conn, _params) do
   end
 end
