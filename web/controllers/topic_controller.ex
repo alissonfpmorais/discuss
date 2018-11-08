@@ -38,11 +38,6 @@ defmodule Discuss.TopicController do
     old_topic = Repo.get(Topic, topic_id)
     changeset = Topic.changeset(old_topic, topic)
 
-    changeset =
-      Topic
-      |> Repo.get(topic_id)
-      |> Topic.changeset(topic)
-
     case Repo.update(changeset) do
       {:ok, _topic} ->
         conn
