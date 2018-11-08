@@ -3,6 +3,7 @@ defmodule Discuss.TopicController do
   alias Discuss.Topic
 
   plug Discuss.Plugs.RequireAuth when action not in [:index, :show]
+  plug :check_topic_owner when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
     topics = Repo.all(Topic)
@@ -15,7 +16,10 @@ defmodule Discuss.TopicController do
   end
 
   def create(conn, %{"topic" => topic}) do
-    changeset = Topic.changeset(%Topic{}, topic)
+    changeset =
+      conn.assigns[:user]
+      |> build_assoc(:topics)
+      |> Topic.changeset(topic)
 
     case Repo.insert(changeset) do
       {:ok, _topic} ->
@@ -62,5 +66,16 @@ defmodule Discuss.TopicController do
   end
 
   def show(_conn, _params) do
+  end
+
+  defp check_topic_owner(%{params: %{"id" => topic_id}} = conn, _params) do
+    if conn.assigns[:user] && conn.assigns.user.id == Repo.get(Topic, topic_id).user_id do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You don't have the required permissions!")
+      |> redirect(to: topic_path(conn, :index))
+      |> halt
+    end
   end
 end
