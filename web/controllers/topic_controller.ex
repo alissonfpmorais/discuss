@@ -65,7 +65,9 @@ defmodule Discuss.TopicController do
     |> redirect(to: topic_path(conn, :index))
   end
 
-  def show(_conn, _params) do
+  def show(conn, %{"id" => topic_id}) do
+    topic = Repo.get!(Topic, topic_id)
+    render conn, "show.html", topic: topic
   end
 
   defp check_topic_owner(%{params: %{"id" => topic_id}} = conn, _params) do
