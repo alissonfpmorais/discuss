@@ -10,5 +10,8 @@ defmodule Discuss.Comment do
   end
 
   def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:content])
+    |> validate_required([:content])
   end
 end
